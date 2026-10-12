@@ -1,0 +1,27 @@
+[
+  {
+    "id": "task_001",
+    "question": "Find Ibrahim's score in the document and multiply it by 2.",
+    "expected_answer": "150"
+  },
+  {
+    "id": "task_002",
+    "question": "Find Ali's score in the document and multiply it by 3.",
+    "expected_answer": "216"
+  },
+  {
+    "id": "task_003",
+    "question": "Find Ahmed's score in the document and multiply it by 4.",
+    "expected_answer": "260"
+  },
+  {
+    "id": "task_004",
+    "question": "Find Ibrahim's score and Ali's score in the document, then multiply them together.",
+    "expected_answer": "5400"
+  },
+  {
+    "id": "task_005",
+    "question": "Find the project deadline day number in the document and multiply it by 2.",
+    "expected_answer": "62"
+  }
+]

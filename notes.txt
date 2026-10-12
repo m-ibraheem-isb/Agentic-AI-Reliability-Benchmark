@@ -1,0 +1,5 @@
+Ali scored 72 out of 80.
+Ahmed scored 65 out of 80.
+Ibrahim scored 75 out of 80.
+The Agentic AI project deadline is 31 October.
+The project uses calculator and document search tools.

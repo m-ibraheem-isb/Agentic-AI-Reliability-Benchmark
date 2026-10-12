@@ -1,0 +1,263 @@
+import os
+import json
+import time
+import csv
+from dotenv import load_dotenv
+from openai import OpenAI
+from openai import OpenAI, RateLimitError
+
+load_dotenv()
+
+client = OpenAI(
+  base_url = "https://openrouter.ai/api/v1",
+  api_key = os.getenv("OpenRouterApiKey")
+)
+
+def multiply(a,b):
+  return a*b
+
+def search_document(query):
+  file = open("notes.txt")
+  lines = file.readlines()
+  file.close()
+
+  matches = []
+
+  for line in lines:
+
+    if query.lower() in line.lower():
+      matches.append(line.strip())
+
+  if len(matches) > 0:
+    return "\n".join(matches)
+
+  return "No match found"
+
+def run_agent(question):
+  messages = [
+      {
+          "role": "user",
+          "content": question
+      }
+  ]
+
+  tools = [
+    {
+    "type": "function",
+    "function":
+      {
+      "name": "multiply",
+      "description": "multiply two numbers",
+      "parameters":
+        {
+        "type": "object",
+        "properties":
+          {
+          "a":
+            {
+            "type": "number"
+            },
+          "b":
+            {
+            "type": "number"
+            }
+          },
+          "required": ["a","b"]
+        }
+      }
+    },
+    {
+    "type": "function",
+    "function":
+      {
+        "name": "search_document",
+        "description": "Search the local notes file for information.",
+        "parameters":
+          {
+            "type": "object",
+            "properties":
+              {
+                "query":
+                  {
+                    "type": "string"
+                  }
+              },
+              "required": ["query"]
+          }
+        }
+      }
+  ]
+
+  max_steps = 5
+  step = 0
+  tool_calls_count = 0
+
+  while step < max_steps:
+
+      step += 1
+      retries = 0
+
+      while True:
+
+          try:
+              response = client.chat.completions.create(
+                  model="openrouter/free",
+                  messages=messages,
+                  tools=tools,
+                  tool_choice="auto",
+                  extra_body={
+                      "provider": {
+                          "require_parameters": True
+                      }
+                  }
+              )
+
+              break
+
+          except RateLimitError:
+
+              retries += 1
+
+              if retries == 3:
+                  return "API rate limit error", step, tool_calls_count
+
+              print("Rate limit hit. Waiting 10 seconds...")
+              time.sleep(10)
+
+      result = response.choices[0].message
+
+      if result.tool_calls:
+
+          tool_calls_count += 1
+
+          print("LLM requested a tool")
+
+          tool_call = result.tool_calls[0]
+
+          tool_name = tool_call.function.name
+
+          arguments = json.loads(
+              tool_call.function.arguments
+          )
+
+          print("Tool:", tool_name)
+          print("Arguments:", arguments)
+
+          if tool_name == "multiply":
+
+              tool_result = multiply(
+                  arguments["a"],
+                  arguments["b"]
+              )
+
+          elif tool_name == "search_document":
+
+              tool_result = search_document(
+                  arguments["query"]
+              )
+
+          print("Tool result:", tool_result)
+
+          messages.append(result)
+
+          messages.append(
+              {
+                  "role": "tool",
+                  "tool_call_id": tool_call.id,
+                  "content": str(tool_result)
+              }
+          )
+
+      else:
+
+          return result.content, step, tool_calls_count
+
+  return "Agent stopped: maximum steps reached", step, tool_calls_count
+
+file = open("5-tasks.json", "r")
+tasks = json.load(file)
+file.close()
+
+passed = 0
+results = []
+
+for task in tasks:
+
+    print("\nRunning:", task["id"])
+
+    question = task["question"]
+    expected = task["expected_answer"]
+
+    start_time = time.perf_counter()
+    answer, steps, tool_calls = run_agent(question)
+    end_time = time.perf_counter()
+
+    runtime = end_time - start_time
+
+    print("Agent answer:", answer)
+    print("Expected:", expected)
+    print("Steps:", steps)
+    print("Tool calls:", tool_calls)
+
+    answer = answer.lower().replace(",", "")
+    expected = expected.lower().replace(",", "")
+
+    if expected.lower() in answer.lower():
+        print("Result: PASS")
+        passed += 1
+        success = True
+    else:
+        print("Result: FAIL")
+        success = False
+
+    results.append(
+      {
+        "task_id": task["id"],
+        "model": "openrouter/free",
+        "configuration": "tool_agent",
+        "expected_answer": expected,
+        "agent_answer": answer,
+        "success": success,
+        "steps": steps,
+        "tool_calls": tool_calls,
+        "runtime_seconds": round(runtime, 2)
+      }
+    )
+
+file = open(
+    "results.csv",
+    "w",
+    newline="",
+    encoding="utf-8"
+)
+
+fieldnames = [
+    "task_id",
+    "model",
+    "configuration",
+    "expected_answer",
+    "agent_answer",
+    "success",
+    "steps",
+    "tool_calls",
+    "runtime_seconds"
+]
+
+writer = csv.DictWriter(
+    file,
+    fieldnames=fieldnames
+)
+
+writer.writeheader()
+writer.writerows(results)
+
+file.close()
+
+
+total = len(tasks)
+
+success_rate = (passed / total) * 100
+
+print("\nPassed:", passed, "/", total)
+print("Success rate:", success_rate, "%")
+print("Results saved to results.csv")
