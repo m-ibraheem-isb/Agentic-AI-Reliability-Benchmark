@@ -3,14 +3,14 @@ import json
 import time
 import csv
 from dotenv import load_dotenv
-from openai import OpenAI
 from openai import OpenAI, RateLimitError
 
 load_dotenv()
+MODEL_NAME = "DeepSeek-V4-Pro"
 
 client = OpenAI(
-  base_url = "https://openrouter.ai/api/v1",
-  api_key = os.getenv("OpenRouterApiKey")
+    base_url=os.getenv("DEEPSEEK_ENDPOINT"),
+    api_key=os.getenv("DEEPSEEK_API_KEY")
 )
 
 def multiply(a,b):
@@ -91,6 +91,8 @@ def run_agent(question):
   max_steps = 5
   step = 0
   tool_calls_count = 0
+  input_tokens = 0
+  output_tokens = 0
 
   while step < max_steps:
 
@@ -101,16 +103,14 @@ def run_agent(question):
 
           try:
               response = client.chat.completions.create(
-                  model="openrouter/free",
+                  model=MODEL_NAME,
                   messages=messages,
                   tools=tools,
                   tool_choice="auto",
-                  extra_body={
-                      "provider": {
-                          "require_parameters": True
-                      }
-                  }
               )
+
+              input_tokens += response.usage.prompt_tokens
+              output_tokens += response.usage.completion_tokens
 
               break
 
@@ -119,7 +119,7 @@ def run_agent(question):
               retries += 1
 
               if retries == 3:
-                  return "API rate limit error", step, tool_calls_count
+                  return "API rate limit error", step, tool_calls_count, input_tokens, output_tokens
 
               print("Rate limit hit. Waiting 10 seconds...")
               time.sleep(10)
@@ -170,11 +170,14 @@ def run_agent(question):
 
       else:
 
-          return result.content, step, tool_calls_count
+          return result.content, step, tool_calls_count,input_tokens, output_tokens
 
-  return "Agent stopped: maximum steps reached", step, tool_calls_count
 
-file = open("5-tasks.json", "r")
+  return "Agent stopped: maximum steps reached", step, tool_calls_count, input_tokens, output_tokens
+
+
+
+file = open("5-tasks.json", "r", encoding="utf-8")
 tasks = json.load(file)
 file.close()
 
@@ -189,20 +192,24 @@ for task in tasks:
     expected = task["expected_answer"]
 
     start_time = time.perf_counter()
-    answer, steps, tool_calls = run_agent(question)
+    answer, steps, tool_calls, input_tokens, output_tokens = run_agent(question)
     end_time = time.perf_counter()
 
     runtime = end_time - start_time
+    total_tokens = input_tokens + output_tokens
 
     print("Agent answer:", answer)
     print("Expected:", expected)
     print("Steps:", steps)
     print("Tool calls:", tool_calls)
+    print("Input tokens:", input_tokens)
+    print("Output tokens:", output_tokens)
+    print("Total tokens:", total_tokens)
 
-    answer = answer.lower().replace(",", "")
-    expected = expected.lower().replace(",", "")
+    normalized_answer = answer.lower().replace(",", "")
+    normalized_expected = expected.lower().replace(",", "")
 
-    if expected.lower() in answer.lower():
+    if normalized_expected in normalized_answer:
         print("Result: PASS")
         passed += 1
         success = True
@@ -213,23 +220,21 @@ for task in tasks:
     results.append(
       {
         "task_id": task["id"],
-        "model": "openrouter/free",
+        "model": MODEL_NAME,
         "configuration": "tool_agent",
         "expected_answer": expected,
         "agent_answer": answer,
         "success": success,
         "steps": steps,
         "tool_calls": tool_calls,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "total_tokens": total_tokens,
         "runtime_seconds": round(runtime, 2)
       }
     )
 
-file = open(
-    "results.csv",
-    "w",
-    newline="",
-    encoding="utf-8"
-)
+file = open("results.csv", "w", newline="", encoding="utf-8")
 
 fieldnames = [
     "task_id",
@@ -240,13 +245,13 @@ fieldnames = [
     "success",
     "steps",
     "tool_calls",
+    "input_tokens",
+    "output_tokens",
+    "total_tokens",
     "runtime_seconds"
 ]
 
-writer = csv.DictWriter(
-    file,
-    fieldnames=fieldnames
-)
+writer = csv.DictWriter(file,fieldnames=fieldnames)
 
 writer.writeheader()
 writer.writerows(results)
