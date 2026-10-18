@@ -109,8 +109,11 @@ def run_agent(question):
                   tool_choice="auto",
               )
 
-              input_tokens += response.usage.prompt_tokens
-              output_tokens += response.usage.completion_tokens
+              if(response.usage is not None):
+                input_tokens += response.usage.prompt_tokens
+                output_tokens += response.usage.completion_tokens
+              else:
+                print("Usage information missing")
 
               break
 

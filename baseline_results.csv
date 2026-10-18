@@ -1,0 +1,17 @@
+task_id,model,configuration,expected_answer,agent_answer,success,steps,tool_calls,input_tokens,output_tokens,total_tokens,runtime_seconds
+task_001,DeepSeek-V4-Pro,direct_llm,150,"I don't see any document or information about Ibrahim's score in your message. You haven't shared a document or provided Ibrahim's score for me to work with.
+
+Could you please share the document or tell me what Ibrahim's score is? Once I have that number, I can multiply it by 2 for you.",False,1,0,18,65,83,5.86
+task_002,DeepSeek-V4-Pro,direct_llm,216,"I don't see any document attached to your message. Could you please share the document or provide the information about Ali's score? Once I have that, I can multiply it by 3 for you.",False,1,0,18,42,60,11.81
+task_003,DeepSeek-V4-Pro,direct_llm,260,"I don't see any document attached to your message. To help you find Ahmed's score and multiply it by 4, I'll need you to share the document or provide the information it contains.
+
+Could you please:
+- Upload the document (PDF, image, text file, etc.)
+- Copy and paste the relevant content here
+- Or simply tell me Ahmed's score directly?
+
+Once I have that, I can quickly calculate the result for you.",False,1,0,18,92,110,1.8
+task_004,DeepSeek-V4-Pro,direct_llm,5400,I don't see any document attached to your message. Could you please share the document or provide the information about Ibrahim's and Ali's scores so I can help you multiply them?,False,1,0,21,37,58,1.1
+task_005,DeepSeek-V4-Pro,direct_llm,62,"I don't see any document or project deadline information attached to your message. You haven't shared a document with me in this conversation. 
+
+Could you please upload or paste the document containing the project deadline so I can find the deadline day number and multiply it by 2 for you?",False,1,0,20,58,78,3.17
