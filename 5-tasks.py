@@ -263,7 +263,6 @@ file.close()
 
 
 total = len(tasks)
-
 success_rate = (passed / total) * 100
 
 print("\nPassed:", passed, "/", total)
