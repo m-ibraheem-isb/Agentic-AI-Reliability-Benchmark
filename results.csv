@@ -1,14 +1,13 @@
 task_id,model,configuration,expected_answer,agent_answer,success,steps,tool_calls,input_tokens,output_tokens,total_tokens,runtime_seconds
-task_001,DeepSeek-V4-Pro,tool_agent,150,"Ibrahim's score is **75**, and multiplying it by 2 gives **150**.",True,3,2,1328,161,1489,7.54
-task_002,DeepSeek-V4-Pro,tool_agent,216,"Ali's score in the document is **72**, and multiplying it by 3 gives **216**.",True,3,2,1311,155,1466,3.92
-task_003,DeepSeek-V4-Pro,tool_agent,260,"Ahmed scored **65** in the document, and multiplying that by 4 gives **260**.",True,3,2,1328,163,1491,4.21
-task_004,DeepSeek-V4-Pro,tool_agent,5400,"Here are the results:
+task_001,DeepSeek-V4-Pro,tool_agent,150,"Here's the result:
 
-- **Ibrahim's score**: 75
-- **Ali's score**: 72
-- **Product (75 × 72)**: **5,400**",True,4,3,2077,298,2375,11.89
-task_005,DeepSeek-V4-Pro,tool_agent,62,"The result is **62**. 
+- **Ibrahim's score:** 75 out of 80
+- **75 × 2 = 150**",True,3,2,1344,180,1524,9.94
+task_002,DeepSeek-V4-Pro,tool_agent,216,Here,False,4,3,1330,217,1547,30.31
+task_003,DeepSeek-V4-Pro,tool_agent,260,"Ahmed's score is **65**, and multiplying it by 4 gives **260**.",True,3,2,1314,153,1467,30.7
+task_004,DeepSeek-V4-Pro,tool_agent,5400,"Here's the result:
 
-To summarize:
-- The project deadline day number from the document is **31** (October 31st).
-- 31 × 2 = **62**.",True,3,2,1359,199,1558,6.88
+- **Ibrahim's score**: 75 out of 80
+- **Ali's score**: 72 out of 80
+- **Product**: 75 × 72 = **5400**",True,5,4,2776,359,3135,8.86
+task_005,DeepSeek-V4-Pro,tool_agent,62,"The project deadline day number is **31** (October 31st), and when multiplied by 2, the result is **62**.",True,4,3,1906,231,2137,5.36
