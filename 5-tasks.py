@@ -22,7 +22,6 @@ def search_document(query):
   file.close()
 
   matches = []
-
   for line in lines:
 
     if query.lower() in line.lower():
@@ -255,12 +254,10 @@ fieldnames = [
 ]
 
 writer = csv.DictWriter(file,fieldnames=fieldnames)
-
 writer.writeheader()
 writer.writerows(results)
 
 file.close()
-
 
 total = len(tasks)
 success_rate = (passed / total) * 100
