@@ -1,0 +1,20 @@
+task_id,model,configuration,expected_answer,agent_answer,success,steps,tool_calls,input_tokens,output_tokens,total_tokens,runtime_seconds
+task_001,DeepSeek-V4-Pro,direct_llm_with_context,150,"Ibrahim scored 75 out of 80.
+
+75 × 2 = 150",False,1,0,86,18,104,4.96
+task_002,DeepSeek-V4-Pro,direct_llm_with_context,216,"Ali's score in the document is 72 out of 80.  
+
+Multiplying it by 3:  
+72 × 3 = **216**",False,1,0,86,33,119,0.91
+task_003,DeepSeek-V4-Pro,direct_llm_with_context,260,"Ahmed scored **65 out of 80**.  
+Multiplying 65 by 4 gives **260**.",False,1,0,86,24,110,1.39
+task_004,DeepSeek-V4-Pro,direct_llm_with_context,5400,"Ibrahim's score is 75.  
+Ali's score is 72.  
+
+75 × 72 = 5400  
+
+So the product is **5400**.",False,1,0,89,35,124,2.43
+task_005,DeepSeek-V4-Pro,direct_llm_with_context,62,"The project deadline is **31 October**, so the day number is **31**.
+
+Multiplying by 2:  
+31 × 2 = **62**.",False,1,0,88,33,121,2.96
